@@ -2,24 +2,75 @@ package main;
 
 /**
  *
- * @author arman
+ * @author Armand Moussaouyi 
  */
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
         
 public class Matrix {
     private int rows;
     private int columns;
-    private int sum;
-    private String type;
     private int[][] origin;
     private int matrix[][];
+    private double[][] double_matrix;
+    private String type;
     
     // default constructor
     public Matrix(){
         
     }
     
-    // Constructor
+    /***************************************************************************
+     * Overload constructor to get number of rows, columns and data from a file
+     * Takes a file name and store the data in a new matrix object
+     * The matrix size does not need to be predefined
+     * @param fileName
+     **************************************************************************/
+    public Matrix(String fileName){
+        
+        java.io.File file = new java.io.File(fileName);
+        try {
+            BufferedReader read = new BufferedReader(new FileReader(fileName));
+            Scanner input = new Scanner(file);
+            columns = (input.nextLine().split(" ")).length;  // get the number of columns
+            int count = 0;                                   // keeps track of number of rows
+            
+            while (read.readLine() != null){
+                count++;                                     // Update number of rows
+                System.out.println("count: " + count);
+            }
+            read.close();
+            rows = count;                                    // assign number of rows
+            
+            // store file data in the new matrix
+            while (input.hasNext()){                         
+                for (int i = 0; i < rows; i++){
+                    for (int j = 0; j < columns; j++){
+                        matrix[i][j] = input.nextInt();
+                        origin[i][j] = matrix[i][j];
+                    }
+                }
+            }
+            
+            
+        } catch (FileNotFoundException ex) {
+            //Logger.getLogger(Matrix.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("File not found");
+        } catch (IOException ex) {
+            Logger.getLogger(Matrix.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /***************************************************************************
+     * Constructor
+     * @param _rows
+     * @param _columns 
+     **************************************************************************/
     public Matrix(int _rows, int _columns){
         rows = _rows;
         columns = _columns;
@@ -41,8 +92,30 @@ public class Matrix {
         }
     }
     
+    /***************************************************************************
+     * Overloading storeData method to take a matrix from a file
+     * The file must have predefined number of rows and columns matching the
+     * created object
+     * @param fileName 
+     **************************************************************************/
     public void storeData(String fileName){
-        
+        java.io.File file = new java.io.File(fileName);
+        try {
+            Scanner input = new Scanner(file);
+            
+            while (input.hasNext()){
+                for (int i = 0; i < rows; i++){
+                    for (int j = 0; j < columns; j++){
+                        matrix[i][j] = input.nextInt();
+                        origin[i][j] = matrix[i][j];
+                    }
+                }
+            }
+            
+        } catch (FileNotFoundException ex) {
+            //Logger.getLogger(Matrix.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("File not found");
+        }
     }
     
     public void transpose(){
@@ -93,6 +166,9 @@ public class Matrix {
     
     /***************************************************************************
     * Takes two matrices of the same size and returns the addition of the two
+     * @param op1
+     * @param op2
+     * @return temp
     ***************************************************************************/
     public Matrix add(Matrix op1, Matrix op2){
         Matrix temp = null;
@@ -110,7 +186,7 @@ public class Matrix {
             }
         }
         else{
-            System.err.println("Error, incompatible sizes");
+            System.err.println("Incompatible sizes");
         }
         return temp;
     }
@@ -136,6 +212,7 @@ public class Matrix {
     /***************************************************************************
     * Subtract op1 from current matrix object
     * They must have equal sizes
+     * @param op1
     ***************************************************************************/
     public void subtract(Matrix op1){
         for (int i = 0; i < rows; i++){
