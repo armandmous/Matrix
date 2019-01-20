@@ -4,10 +4,7 @@ package main;
  *
  * @author Armand Moussaouyi 
  */
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,37 +29,32 @@ public class Matrix {
      * @param fileName
      **************************************************************************/
     public Matrix(String fileName){
-        
+        int[] _size = getSize(fileName);
+        rows = _size[0];
+        columns = _size[1];
+        matrix = new int[rows][columns];
+        origin = new int[rows][columns];
         java.io.File file = new java.io.File(fileName);
+ 
         try {
-            BufferedReader read = new BufferedReader(new FileReader(fileName));
             Scanner input = new Scanner(file);
-            columns = (input.nextLine().split(" ")).length;  // get the number of columns
-            int count = 0;                                   // keeps track of number of rows
             
-            while (read.readLine() != null){
-                count++;                                     // Update number of rows
-                System.out.println("count: " + count);
+            int r = 0;      // keeps track of row number
+            int c = 0;      // keeps track of column
+            while (input.hasNext()){                    // while there is an element in the file
+                matrix[r][c] = input.nextInt();         // assign element to matrix at position [r][c]
+                origin[r][c] = matrix[r][c];            // keeps an original matrix for transpose method
+                c++;                                    // increment column value
+                if (c == columns){                      // if we have reached last column
+                    c = 0;                              // reset column
+                    r++;                                // increment row (move to the next row)
+                }     
             }
-            read.close();
-            rows = count;                                    // assign number of rows
-            
-            // store file data in the new matrix
-            while (input.hasNext()){                         
-                for (int i = 0; i < rows; i++){
-                    for (int j = 0; j < columns; j++){
-                        matrix[i][j] = input.nextInt();
-                        origin[i][j] = matrix[i][j];
-                    }
-                }
-            }
-            
+            input.close();
             
         } catch (FileNotFoundException ex) {
             //Logger.getLogger(Matrix.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("File not found");
-        } catch (IOException ex) {
-            Logger.getLogger(Matrix.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -195,7 +187,10 @@ public class Matrix {
     * Takes two matrices and performs subtraction and returns a matrix object
     * op1 is subtracted from op2.
     * Both matrices must be of equal size.
-    * *************************************************************************/
+    * @param op1
+    * @param op2
+    * @return  
+     *************************************************************************/
     public Matrix subtract(Matrix op1, Matrix op2){
         int _rows = op1.getSize()[0];
         int _columns = op1.getSize()[1];
@@ -226,6 +221,29 @@ public class Matrix {
     public int[] getSize(){
         int[] _size = {rows, columns};
         return _size;
+    }
+    // Overloading getSize method to process file
+    private int[] getSize(String fileName){
+        java.io.File file = new java.io.File(fileName);
+        int[] temp = new int[2];
+        int _rows = 0;
+        int _columns = 0;
+        
+        try {
+            Scanner input = new Scanner(file);
+            while (input.hasNextLine()){
+                _columns = (input.nextLine().split(" ")).length;
+                _rows++;
+            }
+            input.close();
+            temp[0] = _rows;
+            temp[1] = _columns;
+            
+        }
+        catch (FileNotFoundException ex){
+            System.out.println("File not found!!");
+        }
+        return temp;
     }
     
     // sets the number of rows and columns
@@ -279,4 +297,9 @@ public class Matrix {
         }
         return temp;
     }
+    
+    /***************************************************************************
+    * The method takes two matrix objects and computes
+    * 
+    ***************************************************************************/
 }
